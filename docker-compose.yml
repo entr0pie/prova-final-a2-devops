@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: ecommerce
+    ports:
+      - "3306:3306"
+    networks:
+      - minha_rede
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server"]
+    networks:
+      - minha_rede
+
+  products:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: products
+    ports:
+      - "3001:3001"
+    networks:
+      - minha_rede
+
+  orders:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: orders
+    depends_on:
+      - mysql
+      - redis
+      - products
+    environment:
+      PATH: "/root/.local/bin:/app/.venv/bin:$PATH"
+      POETRY_VIRTUALENVS_IN_PROJECT: "true"
+    ports:
+      - "3002:3002"
+    networks:
+      - minha_rede
+  payments:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: payments
+    depends_on:
+      - orders
+    environment:
+      ORDER_API_URL: "http://orders:3002"
+    ports:
+      - "3000:3000"
+    networks:
+      - minha_rede
+
+networks:
+  minha_rede:
+    driver: bridge

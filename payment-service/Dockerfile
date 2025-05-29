@@ -2,8 +2,6 @@ FROM php:latest
 
 WORKDIR /var/www/html
 
-RUN export ORDER_API_URL=http://localhost:3002
-
 COPY . .
 
 EXPOSE 3000
