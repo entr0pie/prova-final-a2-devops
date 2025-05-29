@@ -1,0 +1,6 @@
+FROM mysql:8
+
+ENV MYSQL_ROOT_PASSWORD=example
+ENV MYSQL_DATABASE=ecommerce
+
+EXPOSE 3306
